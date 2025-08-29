@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
+
+gem "prawn"
+gem "pry"
+gem "i18n"
+
+gem "matrix", "~> 0.4.3"

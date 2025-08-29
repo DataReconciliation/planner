@@ -1,0 +1,24 @@
+# Daily tasks organized by day of the week
+# The numbers represent the row position where the task should appear on the planner page
+
+sunday:
+  1: "Plan meals"
+  2: "Grocery shopping"
+
+monday:
+  0: "Update weekly goals"
+
+tuesday:
+  0: "Review weekly goals"
+
+wednesday:
+  0: "Review weekly goals"
+
+thursday:
+  0: "Review weekly goals"
+
+friday:
+  0: "Review weekly goals"
+
+saturday:
+  1: "Plan next week"
