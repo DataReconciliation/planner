@@ -1,75 +1,212 @@
-# Generate Time-Block Planner Pages
+# 时间块规划器 - 安装和使用指南
 
-I'm a big fan of [Cal Newport's Time-Block Planner](https://www.timeblockplanner.com) 
-but I didn't like having unused weekend pages and got tired of writing in the 
-dates so I wrote this script to generate my own version of it. It generates a 
-PDF with a week's worth of 8.5 x 11 inch pages.
+## 项目简介
 
-I'm also a fan of [Manager Tools' 1-on-1s](https://www.manager-tools.com/map-universe/one-ones),
-so I incorporated a version of their meeting form. You specify which people you 
-meet every week, and you'll get a page for each.
+这是一个基于Ruby的时间块规划器，可以生成PDF格式的规划页面，灵感来源于Cal Newport的时间块规划方法。
 
-Take a look at a [sample](sample.pdf) and see what you think. If it's not to 
-your liking, feel free to customize it, or try out some of the other variations people have put together:
-- [jlorenzetti's fork](https://github.com/jlorenzetti/planner) generates A4 
-pages in Helvetica, and omits the 1-on-1 forms.
-  - [pzula's fork](https://github.com/pzula/planner) is based off of jlorenzetti's but scales it down to A5.
-- [Hyunggilwoo's fork](https://github.com/Hyunggilwoo/planner) uses UbuntuMono
-and omits 1-on-1 forms. It looks like a good choice for Ubuntu users.
-- [dianalow's fork](https://github.com/dianalow/time-block-planner) is scaled to fit in the [TRAVELER’S notebook](https://travelerscompanyusa.com/travelers-notebook-story/), and as usual omits, the 1:1 forms.
+## 系统要求
 
-## Installation
+- Linux/macOS/Windows (WSL)
+- Ruby 3.0+
+- Bundler
 
-Assuming you've got [Ruby](http://www.ruby-lang.org/en/) and [Bundler](https://bundler.io)
-installed you can just run:
+## 安装步骤
+
+### 1. 安装Ruby和Bundler
+
+**Ubuntu/Debian系统：**
+```bash
+sudo apt update
+sudo apt install ruby ruby-bundler
 ```
+
+**CentOS/RHEL系统：**
+```bash
+sudo yum install ruby rubygems ruby-devel
+gem install bundler
+```
+
+**使用Snap（通用）：**
+```bash
+sudo snap install ruby
+```
+
+### 2. 验证安装
+```bash
+ruby --version
+bundle --version
+```
+
+### 3. 克隆项目（如果还没有）
+```bash
 git clone git@github.com:drewish/planner.git
 cd planner
+```
+
+### 4. 安装项目依赖
+
+**设置本地安装路径（避免权限问题）：**
+```bash
+bundle config set --local path vendor/bundle
+```
+
+**安装依赖包：**
+```bash
 bundle install
 ```
 
-## Usage
-
-### Planner Pages
-
-You can generate planner pages for the current week:
-```sh
-./planner.rb
+**如果是Linux系统，需要添加matrix依赖：**
+```bash
+bundle add matrix
 ```
 
-Or, you can generate a different week's pages by passing in the date:
-```sh
-./planner.rb 2023-05-01
+### 5. 修复字体路径（Linux系统）
+
+编辑 `config.rb` 文件，将Mac字体路径替换为Linux字体：
+
+```ruby
+# 原始Mac配置
+OSX_FONT_PATH = "/System/Library/Fonts/Supplemental/Futura.ttc"
+
+# 修改为Linux配置
+UBUNTU_FONT_BASE = "/usr/share/fonts/truetype/ubuntu"
+FONTS = {
+  'Ubuntu' => {
+    normal: "#{UBUNTU_FONT_BASE}/Ubuntu-R.ttf",
+    italic: "#{UBUNTU_FONT_BASE}/Ubuntu-RI.ttf", 
+    bold: "#{UBUNTU_FONT_BASE}/Ubuntu-B.ttf",
+    condensed: "#{UBUNTU_FONT_BASE}/Ubuntu-C.ttf",
+  }
+}
 ```
 
-If you'd like to generate multiple weeks at once:
-```sh
-./planner.rb --weeks 4
+## 使用方法
+
+### 基本命令
+
+**生成当前周的规划页面：**
+```bash
+bundle exec ruby planner.rb
 ```
 
-On a Mac you can send the PDF directly to your printer:
-```sh
+**生成指定日期开始的规划页面：**
+```bash
+bundle exec ruby planner.rb 2025-09-01
+```
+
+**生成多周页面：**
+```bash
+bundle exec ruby planner.rb --weeks 4
+```
+
+**生成特定时间段的页面（例如从2025年9月1日到2026年1月1日）：**
+```bash
+bundle exec ruby planner.rb --weeks 18 2025-09-01
+```
+
+### 其他功能
+
+**生成一对一会议页面：**
+```bash
+bundle exec ruby one-on-one.rb --weeks 4 2025-09-01
+```
+
+**生成笔记页面：**
+```bash
+bundle exec ruby notes.rb
+```
+
+**查看帮助：**
+```bash
+bundle exec ruby planner.rb --help
+```
+
+### 命令参数说明
+
+- `--weeks NUM` 或 `-w NUM`：生成指定周数的页面
+- `--locale LOCALE` 或 `-l LOCALE`：设置语言环境
+- `--help` 或 `-h`：显示帮助信息
+- `STARTDATE`：指定开始日期，格式如 `2025-09-01`
+
+## 输出文件
+
+- **规划页面**：`time_block_pages.pdf`
+- **一对一会议页面**：由one-on-one.rb脚本生成
+- **笔记页面**：由notes.rb脚本生成
+
+## 自定义配置
+
+### 编辑工作时间
+修改 `config.rb` 中的 `HOUR_LABELS` 数组：
+```ruby
+HOUR_LABELS = [nil, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, nil, nil]
+```
+
+### 设置一对一会议
+在 `config.rb` 的 `one_on_ones_for` 函数中添加你的会议安排：
+```ruby
+def one_on_ones_for sunday
+  tue = %w(张三)
+  wed = %w(李四 王五)
+  thr = %w(赵六)
+  # ...
+end
+```
+
+### 调整页面设置
+- 页面大小：修改 `PAGE_SIZE`（'LETTER' 或 'A4'）
+- 颜色方案：修改 `LIGHT_COLOR`, `MEDIUM_COLOR`, `DARK_COLOR`
+- 页边距：修改 `LEFT_PAGE_MARGINS`, `RIGHT_PAGE_MARGINS`
+
+## 打印建议
+
+**Linux系统打印：**
+```bash
 lpr time_block_pages.pdf
 ```
 
-### One-on-one Pages
-
-The script that generates the 1-on-1 forms supports the same options:
-```sh
-./one-on-one.rb -weeks 2 2023-05-01
+**查看PDF：**
+```bash
+evince time_block_pages.pdf  # 或其他PDF查看器
 ```
 
-### Notes Pages
+## 故障排除
 
-You can also generate a PDF of some simple lined pages:
-```sh
-./notes.rb
+### 常见问题
+
+1. **字体错误**：确保已修复Linux字体路径配置
+2. **权限错误**：使用 `bundle config set --local path vendor/bundle`
+3. **Ruby版本问题**：确保Ruby版本 >= 3.0
+
+### 检查安装
+```bash
+# 检查Ruby版本
+ruby --version
+
+# 检查依赖安装
+bundle check
+
+# 测试生成
+bundle exec ruby planner.rb
 ```
 
-## Limitations
+## 示例使用场景
 
-Probably only works on a Mac since it hardcodes the font path.
+**学期规划（4个月）：**
+```bash
+bundle exec ruby planner.rb --weeks 16 2025-09-01
+```
 
-## Thanks
+**季度规划（3个月）：**
+```bash
+bundle exec ruby planner.rb --weeks 12 2025-10-01
+```
 
-- [@Sumidu](https://github.com/Sumidu) for contributing the internationalization code
+**月度规划：**
+```bash
+bundle exec ruby planner.rb --weeks 4 2025-09-01
+```
+
+---
+
+现在你可以根据这个文档轻松地安装、配置和使用时间块规划器了！
